@@ -1,5 +1,6 @@
 import sys
 import time
+from argparse import ArgumentParser
 
 from termcolor import colored
 import cv2
@@ -7,7 +8,7 @@ import cv2
 import utils
 
 
-def main() -> None:
+def main(no_landmarks: bool) -> None:
     cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     if cam.isOpened() == False:
         sys.exit(colored(
@@ -48,4 +49,19 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    parser = ArgumentParser(
+        usage='python3 main.py [-n | --no-landmarks]',
+        description='Volume controller with hand',
+        allow_abbrev=False
+    )
+
+    parser.add_argument(
+        '-n', 
+        '--no-landmarks', 
+        dest='no_landmarks',
+        action='store_true', 
+        help='Disable landmarks'
+    )
+    args = parser.parse_args()
+    
+    main(no_landmarks=(args.no_landmarks == True))
