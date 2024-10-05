@@ -4,7 +4,7 @@ import cv2
 from termcolor import colored
 
 
-def error(message: str, cam: cv2.VideoCapture) -> None:
+def error(message: str, cap: cv2.VideoCapture) -> None:
+    cap.release()
     cv2.destroyAllWindows()
-    cam.release()
     sys.exit(colored(message, 'red'))

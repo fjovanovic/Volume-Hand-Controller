@@ -9,8 +9,8 @@ import utils
 
 
 def main(no_landmarks: bool) -> None:
-    cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    if cam.isOpened() == False:
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    if cap.isOpened() == False:
         sys.exit(colored(
             'Camera could not be opened',
             'red'
@@ -19,9 +19,9 @@ def main(no_landmarks: bool) -> None:
     previous_time = time.time()
 
     while True:
-        (success, img) = cam.read()
+        (success, img) = cap.read()
         if success == False:
-            utils.error('Unable to process image', cam)
+            utils.error('Unable to process image', cap)
         
         # Measure the FPS
         current_time = time.time()
@@ -44,8 +44,8 @@ def main(no_landmarks: bool) -> None:
         if key & 0xFF == ord('q'):
             break
 
+    cap.release()
     cv2.destroyAllWindows()
-    cam.release()
 
 
 if __name__ == '__main__':
