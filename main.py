@@ -5,6 +5,7 @@ from termcolor import colored
 import cv2
 
 import utils
+from hand_detector import HandDetector
 
 
 def main() -> None:
@@ -17,10 +18,46 @@ def main() -> None:
     
     previous_time = time.time()
 
+    detector = HandDetector()
+
     while True:
         (success, img) = cap.read()
         if success == False:
             utils.error('Unable to process image', cap)
+        
+        detector.draw_hands(img)
+        lmList = detector.get_positions(img)
+
+        # If hand is vissible then process hand landmarks
+        if len(lmList) != 0:
+            # Landmark 4: Thumb tip
+            # Landmark 8: Index finger tip
+            x1 = lmList[4][1]
+            y1 = lmList[4][2]
+            x2 = lmList[8][1]
+            y2 = lmList[8][2]
+
+            cv2.circle(
+                img=img, 
+                center=(x1, y1), 
+                radius=10, 
+                color=(255, 0, 255), 
+                thickness=cv2.FILLED
+            )
+            cv2.circle(
+                img=img, 
+                center=(x2, y2), 
+                radius=10, 
+                color=(255, 0, 255), 
+                thickness=cv2.FILLED
+            )
+            cv2.line(
+                img=img, 
+                pt1=(x1, y1), 
+                pt2=(x2, y2), 
+                color=(255, 0, 255), 
+                thickness=1
+            )
         
         # Measure the FPS
         current_time = time.time()
