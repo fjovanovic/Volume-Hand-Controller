@@ -1,11 +1,13 @@
 import sys
 import time
+import math
 
 from termcolor import colored
 import cv2
 
 import utils
 from hand_detector import HandDetector
+from components import VolumeChanger
 
 
 def main() -> None:
@@ -19,6 +21,9 @@ def main() -> None:
     previous_time = time.time()
 
     detector = HandDetector()
+    volume = VolumeChanger()
+
+    db = volume.get_initial_db()
 
     while True:
         (success, img) = cap.read()
@@ -26,16 +31,17 @@ def main() -> None:
             utils.error('Unable to process image', cap)
         
         detector.draw_hands(img)
-        lmList = detector.get_positions(img)
+        lm_positions = detector.get_positions(img)
 
         # If hand is vissible then process hand landmarks
-        if len(lmList) != 0:
+        if len(lm_positions) != 0:
             # Landmark 4: Thumb tip
             # Landmark 8: Index finger tip
-            x1 = lmList[4][1]
-            y1 = lmList[4][2]
-            x2 = lmList[8][1]
-            y2 = lmList[8][2]
+            x1 = lm_positions[4][1]
+            y1 = lm_positions[4][2]
+            x2 = lm_positions[8][1]
+            y2 = lm_positions[8][2]
+            length = math.hypot(x2-x1, y2-y1)
 
             cv2.circle(
                 img=img, 
@@ -58,6 +64,9 @@ def main() -> None:
                 color=(255, 0, 255), 
                 thickness=1
             )
+
+            db = volume.get_scaled_db(length)
+            volume.set_volume(length)
         
         # Measure the FPS
         current_time = time.time()
@@ -68,6 +77,16 @@ def main() -> None:
             img=img, 
             text=f'FPS: {fps}', 
             org=(10, 30), 
+            fontFace=cv2.FONT_HERSHEY_COMPLEX, 
+            fontScale=1, 
+            color=(0, 255, 0), 
+            thickness=1
+        )
+
+        cv2.putText(
+            img=img, 
+            text=f'Volume: {db} dB', 
+            org=(10, 60), 
             fontFace=cv2.FONT_HERSHEY_COMPLEX, 
             fontScale=1, 
             color=(0, 255, 0), 
