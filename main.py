@@ -27,7 +27,7 @@ def main(reset_volume: bool) -> None:
     while True:
         (success, img) = cap.read()
         if success == False:
-            utils.error('Unable to process image', cap)
+            utils.error('Unable to process image', cap, volume)
         
         detector.draw_hands(img)
         lm_positions = detector.get_positions(img)
