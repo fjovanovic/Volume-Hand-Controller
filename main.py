@@ -6,8 +6,7 @@ from termcolor import colored
 import cv2
 
 import utils
-from hand_detector import HandDetector
-from components import VolumeChanger
+from components import HandDetector, VolumeChanger
 
 
 def main() -> None:
