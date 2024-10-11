@@ -1,6 +1,7 @@
 import sys
 import time
 import math
+from argparse import ArgumentParser
 
 from termcolor import colored
 import cv2
@@ -9,7 +10,7 @@ import utils
 from components import HandDetector, VolumeChanger
 
 
-def main() -> None:
+def main(reset_volume: bool) -> None:
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     if cap.isOpened() == False:
         sys.exit(colored(
@@ -17,12 +18,11 @@ def main() -> None:
             'red'
         ))
     
-    previous_time = time.time()
-
     detector = HandDetector()
-    volume = VolumeChanger()
+    volume = VolumeChanger(reset_volume)
 
     db = volume.get_initial_db()
+    previous_time = time.time()
 
     while True:
         (success, img) = cap.read()
@@ -100,7 +100,24 @@ def main() -> None:
 
     cap.release()
     cv2.destroyAllWindows()
+    volume.reset_default_volume()
 
 
 if __name__ == '__main__':
-    main()
+    parser = ArgumentParser(
+        usage='python3 main.py [-r | --reset-volume]',
+        description='Volume controller with hand',
+        allow_abbrev=False
+    )
+
+    parser.add_argument(
+        '-r', 
+        '--reset-volume', 
+        dest='reset_volume',
+        action='store_true', 
+        help='Restores the system volume to what it was ' \
+            'before the script started'
+    )
+    args = parser.parse_args()
+    
+    main(reset_volume=args.reset_volume)
